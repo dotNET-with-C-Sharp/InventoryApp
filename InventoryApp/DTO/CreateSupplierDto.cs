@@ -2,7 +2,7 @@
 
 namespace InventoryApp.DTO
 {
-    public class CreateSupplierDTO
+    public class CreateSupplierDto
     {
         [Required, StringLength(50)]
         public required string Firstname { get; set; } = string.Empty;

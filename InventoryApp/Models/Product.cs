@@ -12,7 +12,7 @@ namespace InventoryApp.Models
         public string Description { get; set; } = string.Empty;
 
         [Required]
-        public string Category { get; set; }
+        public string Category { get; set; } = string.Empty;
 
         public int? StockCount { get; set; }
 

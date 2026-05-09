@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using InventoryApp.Data;
 using InventoryApp.Models;
 using InventoryApp.DTO;
@@ -10,56 +11,63 @@ namespace InventoryApp.Controllers
     [ApiController]
     public class SuppliersController : ControllerBase
     {
+        // Simulate a database with an in-memory list of suppliers
         private List<Supplier> suppliers = SupplierStore.GetAllSuppliers();
 
-        [HttpGet]
-        public ActionResult<List<Supplier>> GetSuppliers()
+        // Inject the SupplierContext using constructor to interact with the database
+        private readonly SupplierContext _context;
+
+        public SuppliersController(SupplierContext context)
         {
-            //var suppliers = SupplierStore.GetAllSuppliers();
-            return Ok(suppliers);
+            _context = context;
         }
 
 
-        [HttpGet("{id}")]
-        public ActionResult<Supplier> GetSupplierById(int id)
+        /* ---------------------------- 
+         * GET /api/Suppliers 
+         * ---------------------------- */
+        [HttpGet]
+        public async Task<ActionResult<List<Supplier>>> GetSuppliers()
         {
-            var supplier = suppliers.SingleOrDefault(s => s.Id == id);
+            var suppliers = await _context.Suppliers.ToListAsync();
+            return Ok(new
+            {
+                message = "Suppliers retrieved successfully.",
+                suppliers
+            });
+        }
+
+
+        /* ---------------------------- 
+         * GET /api/Suppliers/{id}
+         * ---------------------------- */
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Supplier>> GetSupplierById(int id)
+        {
+            var supplier = await _context.Suppliers.FindAsync(id);
 
             if (supplier == null)
                 return BadRequest("Supplier not found.");
 
-            return Ok(supplier);
+            return Ok(new
+            {
+                message = "Supplier retrieved successfully.",
+                supplier
+            });
         }
 
 
-        //[HttpPost]
-        //public ActionResult<Supplier> CreateSupplier(Supplier newSupplier)
-        //{
-        //    if (newSupplier == null)
-        //        return BadRequest("Supplier data is required.");
-
-        //    if (string.IsNullOrWhiteSpace(newSupplier.Firstname))
-        //        return BadRequest("Firstname is required.");
-
-        //    if (string.IsNullOrWhiteSpace(newSupplier.CompanyName))
-        //        return BadRequest("CompanyName is required.");
-
-        //    suppliers.Add(newSupplier);
-
-        //    return CreatedAtAction(nameof(GetSupplierById), new { Id = newSupplier.Id }, newSupplier);
-        //}
-
+        /* ---------------------------- 
+         * POST /api/Suppliers 
+         * ---------------------------- */
         [HttpPost]
-        public ActionResult<Supplier> CreateSupplier(CreateSupplierDTO dto)
+        public async Task<ActionResult<Supplier>> CreateSupplier(CreateSupplierDto dto)
         {
-            int nextId = suppliers.Any() 
-                ? suppliers.Max(s => s.Id) + 1 
-                : suppliers.Count + 1;
-
             var newSupplier = new Supplier
             {
                 //Id = suppliers.Count + 1,
-                Id = nextId,
+                //Id = nextId,
+                Id = 0, // Let the database generate the Id
                 Firstname = dto.Firstname,
                 Lastname = dto.Lastname,
                 CompanyName = dto.CompanyName,
@@ -67,19 +75,27 @@ namespace InventoryApp.Controllers
                 Founded = dto.Founded
             };
 
-            suppliers.Add(newSupplier);
+            _context.Suppliers.Add(newSupplier);
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetSupplierById), new { Id = newSupplier.Id }, newSupplier);
+            return CreatedAtAction(nameof(GetSupplierById), new { Id = newSupplier.Id }, new
+            {
+                message = "Supplier created successfully.",
+                newSupplier
+            });
         }
 
 
+        /* ---------------------------- 
+         * PUT /api/suppliers/{id} 
+         * ---------------------------- */
         [HttpPut("{id}")]
-        public ActionResult<Supplier> UpdateSupplier(int id, Supplier updatedSupplier)
+        public async Task<ActionResult<Supplier>> UpdateSupplier(int id, Supplier updatedSupplier)
         {
             if (id == 0)
                 return BadRequest("Supplier Id is required.");
 
-            var supplier = suppliers.FirstOrDefault(s => s.Id == id);
+            var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null) return NotFound();
 
             //supplier.Id = supplier.Id;
@@ -90,7 +106,8 @@ namespace InventoryApp.Controllers
             supplier.Founded = updatedSupplier.Founded;
             supplier.UpdatedAt = DateTime.UtcNow;
 
-            //return NoContent();
+            _context.Suppliers.Update(supplier);
+            await _context.SaveChangesAsync();
 
             return Ok(new
             {
@@ -100,46 +117,14 @@ namespace InventoryApp.Controllers
         }
 
 
-        //[HttpPatch("{id}")]
-        //public ActionResult<Supplier> PatchSupplier(int id, Supplier updatedSupplier)
-        //{
-        //    if (id == 0 || updatedSupplier == null) 
-        //        return BadRequest("Supplier Id and updated supplier data is required");
-
-        //    var supplier = suppliers.FirstOrDefault(s => s.Id == id); 
-           
-        //    if (supplier == null)
-        //        return NotFound();
-
-        //    if (!string.IsNullOrWhiteSpace(updatedSupplier.Firstname))
-        //        supplier.Firstname = updatedSupplier.Firstname;
-
-        //    if (!string.IsNullOrWhiteSpace(updatedSupplier.Lastname))
-        //        supplier.Lastname= updatedSupplier.Lastname;
-
-        //    if (!string.IsNullOrWhiteSpace(updatedSupplier.CompanyName))
-        //        supplier.CompanyName = updatedSupplier.CompanyName;
-
-        //    if (!string.IsNullOrWhiteSpace(updatedSupplier.Description))
-        //        supplier.Description = updatedSupplier.Description;
-
-        //    if (updatedSupplier.Founded != null)
-        //        supplier.Founded = updatedSupplier.Founded.Value;
-
-        //    supplier.UpdatedAt = DateTime.UtcNow;
-
-        //    return Ok(new
-        //    {
-        //        message = "Supplier updated successfully",
-        //        supplier
-        //    });
-        //}
-
-
+        /* ---------------------------- 
+         * PATCH /api/suppliers/{id}
+         * ---------------------------- */
         [HttpPatch("{id}")]
-        public IActionResult PatchSupplierDTO(int id, PatchSupplierDto dto)
+        public async Task<IActionResult> PatchSupplierDTO(int id, PatchSupplierDto dto)
         {
-            var supplier = suppliers.FirstOrDefault(s => s.Id == id);
+            var supplier = await _context.Suppliers.FindAsync(id);
+
             if (supplier == null)
                 return NotFound();
 
@@ -163,6 +148,9 @@ namespace InventoryApp.Controllers
 
             supplier.UpdatedAt = DateTime.UtcNow;
 
+            _context.Suppliers.Update(supplier);
+            await _context.SaveChangesAsync();
+
             return Ok(new
             {
                 message = "Supplier updated successfully",
@@ -171,14 +159,19 @@ namespace InventoryApp.Controllers
         }
 
 
+        /* ---------------------------- 
+         * DELETE /api/suppliers/{id} 
+         * ---------------------------- */
         [HttpDelete("{id}")]
-        public IActionResult DeleteSupplier(int id)
+        public async Task<IActionResult> DeleteSupplier(int id)
         {
-            var supplier = suppliers.FirstOrDefault(s => s.Id == id);
+            var supplier = await _context.Suppliers.FindAsync(id);
+
             if (supplier == null) 
                 return BadRequest();
 
-            suppliers.Remove(supplier);
+            _context.Remove(supplier);
+            await _context.SaveChangesAsync();
 
             return Ok(new
             {
