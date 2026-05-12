@@ -65,6 +65,7 @@ namespace InventoryApp.Controllers
                 Category = Dto.Category,
                 Description = Dto.Description,
                 Name = Dto.Name,
+                Price = Dto.Price,
                 StockCount = Dto.StockCount
             };
 
@@ -94,8 +95,10 @@ namespace InventoryApp.Controllers
 
             product.Name = dto.Name;
             product.Description = dto.Description;
+            product.Price = dto.Price;
             product.Category = dto.Category;
             product.StockCount = dto.StockCount;
+            product.UpdatedAt = DateTime.UtcNow;
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();

@@ -10,6 +10,9 @@ namespace InventoryApp.DTO
         public string Description { get; set; } = string.Empty;
 
         [Required]
+        public required decimal Price { get; set; }
+
+        [Required]
         public required string Category { get; set; }
 
         [Required]

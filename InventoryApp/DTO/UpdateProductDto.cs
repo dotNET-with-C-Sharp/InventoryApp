@@ -8,6 +8,8 @@ namespace InventoryApp.DTO
 
         public string Description { get; set; } = string.Empty;
 
+        public decimal Price { get; set; }
+
         public required string Category { get; set; }
 
         public int StockCount { get; set; }
