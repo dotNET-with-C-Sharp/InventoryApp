@@ -65,9 +65,6 @@ namespace InventoryApp.Controllers
         {
             var newSupplier = new Supplier
             {
-                //Id = suppliers.Count + 1,
-                //Id = nextId,
-                Id = 0, // Let the database generate the Id
                 Firstname = dto.Firstname,
                 Lastname = dto.Lastname,
                 CompanyName = dto.CompanyName,
@@ -78,7 +75,7 @@ namespace InventoryApp.Controllers
             _context.Suppliers.Add(newSupplier);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetSupplierById), new { Id = newSupplier.Id }, new
+            return CreatedAtAction(nameof(GetSupplierById), new { id = newSupplier.Id }, new
             {
                 message = "Supplier created successfully.",
                 newSupplier
@@ -92,13 +89,11 @@ namespace InventoryApp.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Supplier>> UpdateSupplier(int id, Supplier updatedSupplier)
         {
-            if (id == 0)
-                return BadRequest("Supplier Id is required.");
-
             var supplier = await _context.Suppliers.FindAsync(id);
-            if (supplier == null) return NotFound();
+            
+            if (supplier == null) 
+                return NotFound();
 
-            //supplier.Id = supplier.Id;
             supplier.Firstname = updatedSupplier.Firstname;
             supplier.Lastname = updatedSupplier.Lastname;
             supplier.CompanyName = updatedSupplier.CompanyName;
@@ -112,7 +107,7 @@ namespace InventoryApp.Controllers
             return Ok(new
             {
                 message = "Supplier updated successfully.",
-                supplier = supplier
+                supplier
             });
         }
 
