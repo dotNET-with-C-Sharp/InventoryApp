@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace InventoryApp.Migrations
 {
-    [DbContext(typeof(SupplierContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20260509103606_CreateSuppliersTable")]
     partial class CreateSuppliersTable
     {

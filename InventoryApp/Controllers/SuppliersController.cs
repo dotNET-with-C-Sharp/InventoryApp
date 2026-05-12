@@ -14,10 +14,10 @@ namespace InventoryApp.Controllers
         // Simulate a database with an in-memory list of suppliers
         private List<Supplier> suppliers = SupplierStore.GetAllSuppliers();
 
-        // Inject the SupplierContext using constructor to interact with the database
-        private readonly SupplierContext _context;
+        // Inject the Application DbContext using constructor to interact with the database
+        private readonly AppDbContext _context;
 
-        public SuppliersController(SupplierContext context)
+        public SuppliersController(AppDbContext context)
         {
             _context = context;
         }

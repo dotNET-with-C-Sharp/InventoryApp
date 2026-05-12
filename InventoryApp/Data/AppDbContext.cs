@@ -3,12 +3,14 @@ using InventoryApp.Models;
 
 namespace InventoryApp.Data
 {
-    public class SupplierContext : DbContext
+    public class AppDbContext : DbContext
     {
         // Create a constructor that accepts DbContextOptions and passes it to the base class
-        public SupplierContext(DbContextOptions<SupplierContext> options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         // Define a DbSet for the Supplier entity
         public DbSet<Supplier> Suppliers { get; set; }
+
+        public DbSet<Product> Products { get; set; }
     }
 }

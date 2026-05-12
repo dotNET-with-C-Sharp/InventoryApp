@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using InventoryApp.Models;
 using InventoryApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace InventoryApp.Controllers
 {
@@ -9,12 +10,31 @@ namespace InventoryApp.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private List<Product> products = ProductStore.GetAllProducts();
+        private readonly AppDbContext _context;
 
-        [HttpGet]
-        public ActionResult <List<Product>> GetProducts()
+        public ProductsController(AppDbContext context)
         {
-            return Ok(products);
+            _context = context;
+        }
+
+
+        /* ---------------------------- 
+         * GET /api/Products
+         * ---------------------------- */
+        [HttpGet]
+        public async Task<ActionResult<List<Product>>> GetProducts()
+        {
+            var products = await _context.Products.ToListAsync();
+
+            if (products == null || products.Count == 0)
+                return BadRequest("No products found.");
+
+            return Ok(new
+            {
+                message = "Products retrieved successfully.",
+                products
+            });
+
         }
     }
 }
