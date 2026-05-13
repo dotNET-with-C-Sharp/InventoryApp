@@ -21,5 +21,8 @@ namespace InventoryApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
+
+        // Navigation collection property for related products with initialization
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

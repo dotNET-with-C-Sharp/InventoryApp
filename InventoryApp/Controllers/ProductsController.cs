@@ -22,7 +22,9 @@ namespace InventoryApp.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Product>>> GetProducts()
         {
-            var products = await _context.Products.ToListAsync();
+            //var products = await _context.Products.ToListAsync();
+
+            var products = await _context.Products.Include(p => p.Supplier).ToListAsync();
 
             if (products == null || products.Count == 0)
                 return NotFound("No products found.");
@@ -60,13 +62,19 @@ namespace InventoryApp.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct(CreateProductDto Dto)
         {
+            var supplierExists = await _context.Suppliers.AnyAsync(s => s.Id == Dto.SupplierId);
+
+            if (!supplierExists)
+                return BadRequest("Invalid SupplierId. Supplier does not exist.");
+
             var newProduct = new Product
             {
                 Category = Dto.Category,
                 Description = Dto.Description,
                 Name = Dto.Name,
                 Price = Dto.Price,
-                StockCount = Dto.StockCount
+                StockCount = Dto.StockCount,
+                SupplierId = Dto.SupplierId
             };
 
             _context.Products.Add(newProduct);
@@ -88,6 +96,11 @@ namespace InventoryApp.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Product>> UpdateProduct(int id, UpdateProductDto dto)
         {
+            var supplierExists = await _context.Suppliers.AnyAsync(s => s.Id == dto.SupplierId);
+
+            if (!supplierExists)
+                return BadRequest("Invalid SupplierId. Supplier does not exist.");
+
             var product = await _context.Products.FindAsync(id);
 
             if (product == null)

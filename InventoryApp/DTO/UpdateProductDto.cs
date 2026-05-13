@@ -13,5 +13,7 @@ namespace InventoryApp.DTO
         public required string Category { get; set; }
 
         public int StockCount { get; set; }
+
+        public int SupplierId { get; set; }
     }
 }

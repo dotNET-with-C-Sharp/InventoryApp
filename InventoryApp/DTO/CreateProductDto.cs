@@ -17,5 +17,9 @@ namespace InventoryApp.DTO
 
         [Required]
         public int StockCount { get; set; }
+
+        // Foreign key to Supplier
+        [Required]
+        public required int SupplierId { get; set; }
     }
 }

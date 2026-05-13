@@ -29,7 +29,10 @@ namespace InventoryApp.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Supplier>>> GetSuppliers()
         {
-            var suppliers = await _context.Suppliers.ToListAsync();
+            //var suppliers = await _context.Suppliers.ToListAsync();
+
+            var suppliers = await _context.Suppliers.Include(s => s.Products).ToListAsync();
+
             return Ok(new
             {
                 message = "Suppliers retrieved successfully.",

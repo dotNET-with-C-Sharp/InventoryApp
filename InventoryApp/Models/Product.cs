@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace InventoryApp.Models
 {
@@ -20,5 +22,13 @@ namespace InventoryApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
-}
+
+        // Foreign key to Supplier
+        public int SupplierId { get; set; }
+
+        // Navigation property for related supplier (object reference used by EF)
+        [JsonIgnore]
+        [ForeignKey("SupplierId")]
+        public Supplier? Supplier { get; set; }
+    }
 }
