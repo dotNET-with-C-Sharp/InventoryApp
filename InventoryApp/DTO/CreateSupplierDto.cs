@@ -10,6 +10,8 @@ namespace InventoryApp.DTO
         [StringLength(50)]
         public string Lastname { get; set; } = string.Empty;
 
+        public IFormFile? Image { get; set; }
+
         [Required, StringLength(50)]
         public required string CompanyName { get; set; }
 

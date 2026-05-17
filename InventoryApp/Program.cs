@@ -1,4 +1,6 @@
 using InventoryApp.Data;
+using InventoryApp.Interfaces;
+using InventoryApp.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
 
 // Add Context service + SQL connection
 builder.Services.AddDbContext<AppDbContext>(options => 
@@ -37,5 +41,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseStaticFiles(); // for images from root folder
 
 app.Run();

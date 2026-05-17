@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using InventoryApp.Data;
 using InventoryApp.Models;
 using InventoryApp.DTO;
+using InventoryApp.Services;
+using InventoryApp.Interfaces;
 
 namespace InventoryApp.Controllers
 {
@@ -12,14 +14,17 @@ namespace InventoryApp.Controllers
     public class SuppliersController : ControllerBase
     {
         // Simulate a database with an in-memory list of suppliers
-        private List<Supplier> suppliers = SupplierStore.GetAllSuppliers();
+        //private List<Supplier> suppliers = SupplierStore.GetAllSuppliers(); // Not-in-Use now
+
+        private readonly ISupplierService _supplierService;
 
         // Inject the Application DbContext using constructor to interact with the database
         private readonly AppDbContext _context;
 
-        public SuppliersController(AppDbContext context)
+        public SuppliersController(AppDbContext context, ISupplierService supplierService)
         {
             _context = context;
+            _supplierService = supplierService;
         }
 
 
@@ -64,19 +69,21 @@ namespace InventoryApp.Controllers
          * POST /api/Suppliers 
          * ---------------------------- */
         [HttpPost]
-        public async Task<ActionResult<Supplier>> CreateSupplier(CreateSupplierDto dto)
+        public async Task<ActionResult<Supplier>> CreateSupplier([FromForm] CreateSupplierDto dto)
         {
-            var newSupplier = new Supplier
-            {
-                Firstname = dto.Firstname,
-                Lastname = dto.Lastname,
-                CompanyName = dto.CompanyName,
-                Description = dto.Description,
-                Founded = dto.Founded
-            };
+            //var newSupplier = new Supplier
+            //{
+            //    Firstname = dto.Firstname,
+            //    Lastname = dto.Lastname,
+            //    CompanyName = dto.CompanyName,
+            //    Description = dto.Description,
+            //    Founded = dto.Founded
+            //};
 
-            _context.Suppliers.Add(newSupplier);
-            await _context.SaveChangesAsync();
+            //_context.Suppliers.Add(newSupplier);
+            //await _context.SaveChangesAsync();
+
+            var newSupplier = await _supplierService.CreateSupplierService(dto);
 
             return CreatedAtAction(nameof(GetSupplierById), new { id = newSupplier.Id }, new
             {

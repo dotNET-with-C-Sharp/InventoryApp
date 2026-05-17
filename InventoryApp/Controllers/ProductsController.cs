@@ -60,7 +60,7 @@ namespace InventoryApp.Controllers
          * POST /api/Products
          * ---------------------------- */
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(CreateProductDto Dto)
+        public async Task<ActionResult<Product>> CreateProduct([FromForm] CreateProductDto Dto)
         {
             var supplierExists = await _context.Suppliers.AnyAsync(s => s.Id == Dto.SupplierId);
 
@@ -82,11 +82,12 @@ namespace InventoryApp.Controllers
 
             return CreatedAtAction(
                 nameof(GetProductById), 
-                new { id = newProduct.Id }, 
+                new { id = newProduct.Id },
                 new {
                     message = "Product added successfully.",
                     newProduct
-                });
+                }
+            );
         }
 
 

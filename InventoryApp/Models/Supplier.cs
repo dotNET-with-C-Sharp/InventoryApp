@@ -12,6 +12,8 @@ namespace InventoryApp.Models
 
         public string Lastname { get; set; } = string.Empty;
 
+        public string? ImageUrl { get; set; }
+
         public required string CompanyName { get; set; }
 
         public int? Founded { get; set; }
